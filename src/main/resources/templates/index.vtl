@@ -1,9 +1,20 @@
-<h1>Stylist List </h1>
+<h1>Stylist list!</h1>
+
+#if ($stylists)
+  <ul>
+    #foreach ($stylist in $stylists)
+      <li>$stylist.getName()</li>
+    #end
+  </ul>
+#else
+  <p>No stylists!</p>
+#end
+
 <p>Add a new Stylist:</p>
 
 <form action="/stylists" method="post">
-<label for="name">Stylist Name</label>
-<input id="name" name="name" type="text">
+  <label for="name">Stylist Name</label>
+  <input id="name" name="name" type="text">
 
-<button type="submit" class="btn btn-success">Add Stylist</button>
+  <button type="submit" class="btn btn-success">Add stylist</button>
 </form>
