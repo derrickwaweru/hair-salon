@@ -1,47 +1,106 @@
 import org.junit.*;
+import org.sql2o.*;
 import static org.junit.Assert.*;
 
 public class ClientTest {
+  @Rule
+  public DatabaseRule database = new DatabaseRule();
+
+
   @Test
   public void Client_instantiatesCorrectly_true(){
-    Client myClient = new Client("Aqua mist");
+    Client myClient = new Client("Aqua mist",1);
     assertEquals(true, myClient instanceof Client);
   }
 
 @Test
 public void Client_instantiatesWithName_String(){
-  Client myClient = new Client("Aqua mist");
+  Client myClient = new Client("Aqua mist",1);
   assertEquals("Aqua mist",myClient.getName());
 }
 
 @Test
 public void all_returnsAllInstancesOfClient_true() {
-  Client firstClient = new Client("Aqua mist");
-  Client secondClient = new Client("Movit mambo");
-  assertEquals(true, Client.all().contains(firstClient));
-  assertEquals(true, Client.all().contains(secondClient));
+  Client firstClient = new Client("Aqua mist",1);
+  firstClient.save();
+  Client secondClient = new Client("Movit mambo",2);
+  secondClient.save();
+  assertEquals(true, Client.all().get(0).equals(firstClient));
+  assertEquals(true, Client.all().get(1).equals(secondClient));
 }
 
-@Test
-public void clear_emptiesAllClientsFromArrayList_0() {
-  Client myclient = new Client("Aqua mist");
-  Client.clear();
-  assertEquals(Client.all().size(), 0);
-}
+// @Test
+// public void clear_emptiesAllClientsFromArrayList_0() {
+//   Client myclient = new Client("Aqua mist");
+//   Client.clear();
+//   assertEquals(Client.all().size(), 0);
+// }
 
 @Test
 public void getId_clientsInstantiateWithAnId_1() {
-  Client.clear();
-  Client myClient = new Client("Aqua mist");
-  assertEquals(1, myClient.getId());
+  // Client.clear();
+  Client myClient = new Client("Aqua mist",1);
+  myClient.save();
+  assertTrue(myClient.getId() > 0);
 }
 
 @Test
 public void find_returnsClientWithSameId_secondClient() {
-  Client firstClient = new Client("Mow the lawn");
-  Client secondClient = new Client("Buy groceries");
-  assertEquals(Client.find(firstClient.getId()), firstClient);
-  assertEquals(Client.find(secondClient.getId()), secondClient);
+  Client firstClient = new Client("Aqua mist",1);
+  firstClient.save();
+  Client secondClient = new Client("Movit mambo",1);
+  secondClient.save();
+  assertEquals(Client.find(secondClient.getId()), secondClient)
 }
+
+@Test
+public void equals_returnsTrueIfNamesAretheSame() {
+  Client firstClient = new Client("Aqua mist",1);
+  Client secondClient = new Client("Movit mambo",2);
+  assertTrue(firstClient.equals(secondClient));
+}
+
+@Test
+public void save_returnsTrueIfNamesAretheSame() {
+  Client myClient = new Client("Aqua mist",1);
+  myClient.save();
+  assertTrue(Client.all().get(0).equals(myClient));
+}
+
+@Test
+public void save_assignsIdToObject() {
+  Client myClient = new Client("Aqua mist",1);
+  myClient.save();
+  Client savedClient = Client.all().get(0);
+  assertEquals(myClient.getId(), savedClient.getId());
+}
+
+     @Test
+      public void save_savesStylistIdIntoDB_true() {
+        Stylist myStylist = new Stylist("Household chores",1);
+        myStylist.save();
+        Client myClient = new Client("Aqua mist", myStylist.getId());
+        myClient.save();
+        Client savedClient = Client.find(myClient.getId());
+        assertEquals(savedClient.getStylistId(), myStylist.getId());
+      }
+
+      @Test
+public void update_updatesClientName_true() {
+  Client myClient = new Client("Aqua mist", 1);
+  myClient.save();
+  myClient.update("Take a nap");
+  assertEquals("Take a nap", Client.find(myClient.getId()).getName());
+}
+
+@Test
+public void delete_deletesClient_true() {
+  Client myClient = new Client("Aqua mist", 1);
+  myClient.save();
+  int myClientId = myClient.getId();
+  myClient.delete();
+  assertEquals(null, Client.find(myClientId));
+}
+
 
 }
